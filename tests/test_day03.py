@@ -7,7 +7,7 @@ from adventofcode.day_03 import (
 )
 
 
-class TestDay02:
+class TestDay03:
     ruck_sack_contents: List[str] = [
         "vJrwpWtwJgWrhcsFMMfFFhFp",
         "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",

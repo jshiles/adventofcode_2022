@@ -1,6 +1,6 @@
 import os
 from typing import List
-from adventofcode.day_05 import parse_file, move, get_top_elements
+from adventofcode.day_05 import parse_file, move, move_n, get_top_elements
 
 
 class TestDay05:
@@ -50,3 +50,14 @@ class TestDay05:
             for _ in range(qty):
                 move(stacks, from_stack - 1, to_stack - 1)
         assert get_top_elements(stacks) == "CMZ"
+
+    def test_execute_moves_n(self):
+        stacks, moves = parse_file(self.test_data_filename)
+        for qty, from_stack, to_stack in moves:
+            move_n(stacks, from_stack - 1, to_stack - 1, qty)
+
+        assert stacks[0] == ["[M]"]
+        assert stacks[1] == ["[C]"]
+        assert stacks[2] == ["[P]", "[Z]", "[N]", "[D]"]
+
+        assert get_top_elements(stacks) == "MCD"

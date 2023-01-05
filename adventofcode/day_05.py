@@ -47,7 +47,9 @@ def parse_file_moves(filename: str) -> List[Tuple[int, int, int]]:
     return moves
 
 
-def parse_file(filename: str) -> Tuple[List[List[str]], List[Tuple[int, int, int]]]:
+def parse_file(
+    filename: str,
+) -> Tuple[List[List[str]], List[Tuple[int, int, int]]]:
     """
     Parse the containers and the moves from the file.
     """
@@ -56,12 +58,24 @@ def parse_file(filename: str) -> Tuple[List[List[str]], List[Tuple[int, int, int
     return stacks, moves
 
 
-def move(stacks: List[List[str]], from_s, to_s):
+def move(stacks: List[List[str]], from_s: int, to_s: int):
     """
     Execute one move. Move top container from stack at index from_s to stack
     at index to_s
     """
     stacks[to_s].append(stacks[from_s].pop())
+
+
+def move_n(stacks: List[List[str]], from_s: int, to_s: int, n: int = 1):
+    """
+    Execute move of N items from one container to another. Move top container
+    from stack at index from_s to stack at index to_s.
+    """
+    tmp_stack: List[str] = []
+    for _ in range(n):
+        tmp_stack.append(stacks[from_s].pop())
+    for _ in range(n):
+        stacks[to_s].append(tmp_stack.pop())
 
 
 def get_top_elements(stacks: List[List[str]]) -> str:

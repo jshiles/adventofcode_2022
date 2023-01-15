@@ -1,9 +1,9 @@
 import os
 from typing import List, Tuple
-from adventofcode.day_09 import VisitedPoint
+from adventofcode.day_09 import VisitedPoint, Knot, Rope
 
 
-class TestDay08:
+class TestDay09:
     head_moves: List[Tuple[str, int]] = [
         ("R", 4),
         ("U", 4),
@@ -15,111 +15,81 @@ class TestDay08:
         ("R", 2),
     ]
 
-    def test_head_movement(self):
-        starting_point = VisitedPoint()
-        points = starting_point.moveHead(
-            self.head_moves[0][0], self.head_moves[0][1]
-        )
-        assert points[-1] == VisitedPoint(4, 0)
+    head_moves_p2: List[Tuple[str, int]] = [
+        ("R", 5),
+        ("U", 8),
+        ("L", 8),
+        ("D", 3),
+        ("R", 17),
+        ("D", 10),
+        ("L", 25),
+        ("U", 20),
+    ]
+
+    def test_move_single_knot(self):
+        knot: Knot = Knot(VisitedPoint())
+        points = knot.move(self.head_moves[0][0], self.head_moves[0][1])
+        assert knot.current_location == VisitedPoint(4, 0)
         assert len(points) == 4
 
-        points = starting_point.moveHead(
-            self.head_moves[1][0], self.head_moves[1][1]
-        )
-        assert points[-1] == VisitedPoint(0, 4)
+        points = knot.move(self.head_moves[1][0], self.head_moves[1][1])
+        assert knot.current_location == VisitedPoint(4, 4)
         assert len(points) == 4
 
-        points = starting_point.moveHead(
-            self.head_moves[2][0], self.head_moves[2][1]
-        )
-        assert points[-1] == VisitedPoint(-3, 0)
+        points = knot.move(self.head_moves[2][0], self.head_moves[2][1])
+        assert knot.current_location == VisitedPoint(1, 4)
         assert len(points) == 3
 
-    def test_execute_head_moves(self):
-        starting_point = VisitedPoint()
+    def test_follow_knot_R4(self):
+        knot_h: Knot = Knot(VisitedPoint())
+        knot_t: Knot = Knot(VisitedPoint())
+        points = knot_h.move(self.head_moves[0][0], self.head_moves[0][1])
+        for point in points:
+            knot_t.follow(point)
+        assert knot_t.current_location == VisitedPoint(3, 0)
+
+    def test_follow_knot_D1(self):
+        knot_h: Knot = Knot(VisitedPoint(1, 2))
+        knot_t: Knot = Knot(VisitedPoint(1, 3))
+        points = knot_h.move("D", 1)
+        for point in points:
+            knot_t.follow(point)
+        assert knot_t.current_location == VisitedPoint(1, 2)
+
+    def test_rope_movement_R2(self):
+        rope: Rope = Rope(VisitedPoint(1, 1), num_knots=2)
+        rope.simulate_motion("R", 2)
+        assert len(rope.historical_tail_locations) == 2
+        assert rope.get_curr_tail_location() == VisitedPoint(2, 1)
+
+    def test_rope_movement_all(self):
+        starting_point: VisitedPoint = VisitedPoint(x=0, y=0)
+        rope: Rope = Rope(starting_point, num_knots=2)
         for move in self.head_moves:
-            points = starting_point.moveHead(move[0], move[1])
-            starting_point = points[-1]
-        assert starting_point == VisitedPoint(2, 2)
-
-    def test_tail_move_R1(self):
-        starting_point_h = VisitedPoint(2, 1)
-        starting_point_t = VisitedPoint(1, 1)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('R', 1)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 1
-        assert tail_points[-1] == VisitedPoint(2, 1)
-
-    def test_tail_move_D1(self):
-        starting_point_h = VisitedPoint(1, 2)
-        starting_point_t = VisitedPoint(1, 3)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('D', 1)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 1
-        assert tail_points[-1] == VisitedPoint(1, 2)
-
-    def test_tail_move_Diag_U1(self):
-        starting_point_h = VisitedPoint(2, 2)
-        starting_point_t = VisitedPoint(1, 1)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('U', 1)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 1
-        assert tail_points[-1] == VisitedPoint(2, 2)
-
-    def test_tail_move_Diag_R1(self):
-        starting_point_h = VisitedPoint(2, 2)
-        starting_point_t = VisitedPoint(1, 1)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('R', 1)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 1
-        assert tail_points[-1] == VisitedPoint(2, 2)
-
-    def test_tail_move_U4(self):
-        starting_point_h = VisitedPoint(4, 0)
-        starting_point_t = VisitedPoint(3, 0)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('U', 4)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 3
-        assert tail_points[0] == VisitedPoint(4, 1)
-        assert tail_points[1] == VisitedPoint(4, 2)
-        assert tail_points[2] == VisitedPoint(4, 3)
-
-    def test_tail_move_L3(self):
-        starting_point_h = VisitedPoint(4, 4)
-        starting_point_t = VisitedPoint(4, 3)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('L', 3)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 2
-        assert tail_points[0] == VisitedPoint(3, 4)
-        assert tail_points[1] == VisitedPoint(2, 4)
-
-    def test_tail_move_D1_NoMove(self):
-        starting_point_h = VisitedPoint(1, 4)
-        starting_point_t = VisitedPoint(2, 4)
-        head_points: List[VisitedPoint] = starting_point_h.moveHead('D', 1)
-        tail_points: List[VisitedPoint] = starting_point_t.moveTail(head_points)
-        assert len(tail_points) == 0
-
-        starting_point_h = head_points[-1]
-        starting_point_t = tail_points[-1] if len(tail_points) else starting_point_t
-        assert starting_point_h == VisitedPoint(1, 3)
-        assert starting_point_t == VisitedPoint(2, 4)
-
-        head_points = starting_point_h.moveHead('R', 4)
-        tail_points = starting_point_t.moveTail(head_points)
-        assert head_points[-1] == VisitedPoint(5, 3)
-        assert tail_points[-1] == VisitedPoint(4, 3)
-
-    def test_execute_tail_moves(self):
-        starting_point = VisitedPoint()
-        all_tail_points: List[VisitedPoint] = [starting_point]
-
-        for move in self.head_moves:
-            head_points = starting_point.moveHead(move[0], move[1])
-            tail_points = all_tail_points[-1].moveTail(head_points)
-            if len(tail_points):
-                all_tail_points = all_tail_points + tail_points
-            starting_point = head_points[-1] if len(head_points) else starting_point
-
-        unique_tail_points = len(set(all_tail_points))
+            rope.simulate_motion(move[0], move[1])
+        assert (
+            rope.historical_tail_locations[-1]
+            == rope.knots[-1].current_location
+        )
+        assert rope.knots[-1].current_location == VisitedPoint(1, 2)
+        unique_tail_points = len(set(rope.historical_tail_locations))
         assert unique_tail_points == 13
+
+    def test_long_rope_R12(self):
+        starting_point: VisitedPoint = VisitedPoint(x=0, y=0)
+        rope: Rope = Rope(starting_point, num_knots=10)
+
+        assert len(rope.knots) == 10
+        assert rope.get_head().current_location == starting_point
+        assert rope.get_curr_tail_location() == starting_point
+
+        rope.simulate_motion("R", 12)
+        assert rope.get_curr_tail_location() == VisitedPoint(x=3, y=0)
+
+    def test_long_rope_all(self):
+        starting_point: VisitedPoint = VisitedPoint(x=11, y=5)
+        rope: Rope = Rope(starting_point, num_knots=10)
+        for move in self.head_moves_p2:
+            rope.simulate_motion(move[0], move[1])
+        unique_tail_points = len(set(rope.historical_tail_locations))
+        assert unique_tail_points == 36

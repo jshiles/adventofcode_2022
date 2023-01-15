@@ -1,27 +1,20 @@
 from typing import List, Tuple
 from adventofcode.utils import read_file_strings
-from adventofcode.day_09 import VisitedPoint
+from adventofcode.day_09 import VisitedPoint, Rope
 
 
 def main():
-    # Part 1
     filename: str = "resources/day_09.txt"
+    moves: List[str] = read_file_strings(filename)
+
+    # Part 1
     starting_point = VisitedPoint()
-    all_tail_points: List[VisitedPoint] = [starting_point]
-
-    for move in read_file_strings(filename):
+    rope: Rope = Rope(starting_point, num_knots=2)
+    for move in moves:
         direction, length = move.strip().split(" ")
-
-        head_points = starting_point.moveHead(direction, int(length))
-        tail_points = all_tail_points[-1].moveTail(head_points)
-        if len(tail_points):
-            all_tail_points = all_tail_points + tail_points
-        starting_point = (
-            head_points[-1] if len(head_points) else starting_point
-        )
-
-    unique_tail_points = len(set(all_tail_points))
-    print(unique_tail_points)
+        rope.simulate_motion(direction, int(length))
+    unique_tail_points = len(set(rope.historical_tail_locations))
+    print(unique_tail_points)  # 6642
 
 
 if __name__ == "__main__":

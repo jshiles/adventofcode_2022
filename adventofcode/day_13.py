@@ -20,6 +20,7 @@ class PacketData:
                     self.input[idx] = int(e)
 
     def __eq__(self, __o: object) -> bool:
+        """ """
         if (
             isinstance(self, PacketData)
             and isinstance(__o, PacketData)
@@ -29,10 +30,18 @@ class PacketData:
         return False
 
     def __le__(self, __o: object) -> bool:
-        """ """
+        """Created a wrapper around the compare function for convienence."""
+        return self.compare(__o)
+
+    def __lt__(self, __o: object) -> bool:
+        """Created a wrapper around the compare function for convienence."""
         return self.compare(__o)
 
     def compare(self, __o: object) -> bool:
+        """
+        Implements a less than or equal to logic against PacketData objects.
+        Return bool.
+        """
         # print(f"Compare {self} and {__o}")
         for x in range(min(len(self.input), len(__o.input))):
             # print(
@@ -73,6 +82,7 @@ class PacketData:
         return True
 
     def length(self) -> int:
+        """Returns recursive length of the PacketData objects."""
         return len(self.input) + sum(
             [x.length() for x in self.input if isinstance(x, PacketData)]
         )
@@ -81,7 +91,10 @@ class PacketData:
         return f"{self.__class__.__name__}({self.input})"
 
 
-def _parse_packet_recursive(data):
+def _parse_packet_recursive(data: list) -> PacketData:
+    """
+    Recursively parse the list into a PacketData object.
+    """
     max_open = max([i for i, x in enumerate(data) if x == "["])
     match_close = min(
         [i for i, x in enumerate(data) if x == "]" and i > max_open]
@@ -98,6 +111,11 @@ def _parse_packet_recursive(data):
 
 
 def str2packetdata(init_data: str) -> PacketData:
+    """
+    Convert the string representation of a packet object into a PacketData
+    object.
+    """
+
     def _str2list(x: str):
         return x.replace("[", "[,").replace("]", ",]").split(",")
 
